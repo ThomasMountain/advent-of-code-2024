@@ -28,7 +28,8 @@ class Day1 extends Command
      */
     public function handle()
     {
-        $input = Storage::get('input/day-1/input.txt');
+        $input = Storage::get('input/day-1.txt');
+
 
         $this->step1($input);
         $this->step2($input);
@@ -36,21 +37,14 @@ class Day1 extends Command
 
     public function step1($input)
     {
-        foreach (explode("\n", $input) as $line) {
-
-            $replaced = Str::replace("\r", '', $line);
-
-            $left[] = Str::before($replaced, "   ");
-            $right[] = Str::after($replaced, "   ");
-
-        }
+        [$left, $right] = $this->processInput($input);
 
         $sortedLeft = array_values(Arr::sort($left));
         $sortedRight = array_values(Arr::sort($right));
 
         $value = 0;
         for ($i = 0; $i < count($sortedLeft); $i++) {
-            $value = $value + abs($sortedLeft[$i] - $sortedRight[$i]);
+            $value += abs($sortedLeft[$i] - $sortedRight[$i]);
         }
 
         $this->info("Step 1 answer: ".$value);
@@ -58,22 +52,27 @@ class Day1 extends Command
 
     public function step2($input)
     {
-        foreach (explode("\n", $input) as $line) {
+        [$left, $right] = $this->processInput($input);
 
-            $replaced = Str::replace("\r", '', $line);
-
-            $left[] = Str::before($replaced, "   ");
-            $right[] = Str::after($replaced, "   ");
-
-        }
         $overallValue = 0;
         foreach ($left as $value) {
-            $countInRightArray = count(Arr::where($right, function ($item) use ($value) {
-                return $item === $value;
-            }));
-
-            $overallValue = $overallValue + ($value * $countInRightArray);
+            $countInRightArray = count(Arr::where($right, fn($item) => $item === $value));
+            $overallValue += ($value * $countInRightArray);
         }
         $this->info("Step 2 answer: ".$overallValue);
+    }
+
+    private function processInput(string $input): array
+    {
+        $left = [];
+        $right = [];
+
+        foreach (explode("\n", $input) as $line) {
+            $replaced = Str::replace("\r", '', $line);
+            $left[] = Str::before($replaced, "   ");
+            $right[] = Str::after($replaced, "   ");
+        }
+
+        return [$left, $right];
     }
 }
