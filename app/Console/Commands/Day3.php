@@ -11,12 +11,12 @@ class Day3 extends Command
 
     protected $description = 'Command description';
 
-    public function handle()
+    public function handle(): void
     {
         $this->input = Storage::get('input/day-3.txt');
 
-        $this->info("Total Result for step 1 : ".$this->step1());
-        $this->info("Total Result for step 2 : ".$this->step2());
+        $this->info('Total Result for step 1 : '.$this->step1());
+        $this->info('Total Result for step 2 : '.$this->step2());
     }
 
     public function step1()
@@ -47,11 +47,13 @@ class Day3 extends Command
         foreach ($splitElements as $token) {
             if (preg_match($doPattern, $token)) {
                 $enabled = true;
+
                 continue;
             }
 
             if (preg_match($dontPattern, $token)) {
                 $enabled = false;
+
                 continue;
             }
 

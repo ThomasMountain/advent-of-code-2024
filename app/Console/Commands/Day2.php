@@ -12,10 +12,10 @@ class Day2 extends Command
 
     protected $description = 'Command description';
 
-    public function handle()
+    public function handle(): void
     {
-        $this->info("The answer to step 1 is ".$this->step1());
-        $this->info("The answer to step 2 is ".$this->step2());
+        $this->info('The answer to step 1 is '.$this->step1());
+        $this->info('The answer to step 2 is '.$this->step2());
     }
 
     private function step1(): int
@@ -24,7 +24,7 @@ class Day2 extends Command
 
         $safeElements = 0;
         foreach ($input as $line) {
-            $individualRow = explode(" ", $line);
+            $individualRow = explode(' ', $line);
 
             if ($this->isSafe($individualRow)) {
                 $safeElements++;
@@ -40,7 +40,7 @@ class Day2 extends Command
         $input = explode("\r\n", Storage::get('input/day-2.txt'));
 
         foreach ($input as $item) {
-            $individualRow = explode(" ", $item);
+            $individualRow = explode(' ', $item);
             $possibleCombinations = $this->getPossibleCombinationsOfRow($individualRow);
 
             foreach ($possibleCombinations as $possibleCombination) {
@@ -56,7 +56,7 @@ class Day2 extends Command
 
     public function getPossibleCombinationsOfRow(array $row): array
     {
-        return array_map(fn($index) => $this->removeItemFromArrayAndPreserveOriginal($row, $index), array_keys($row));
+        return array_map(fn ($index) => $this->removeItemFromArrayAndPreserveOriginal($row, $index), array_keys($row));
     }
 
     private function isOrdered(array $array): bool
@@ -75,6 +75,7 @@ class Day2 extends Command
     ): array {
         $copiedArray = $array;
         array_splice($copiedArray, $index, 1);
+
         return $copiedArray;
     }
 
