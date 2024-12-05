@@ -42,7 +42,7 @@ class Day1 extends Command
 
         $overallValue = 0;
         foreach ($left as $value) {
-            $countInRightArray = count(Arr::where($right, fn($item) => $item === $value));
+            $countInRightArray = count(Arr::where($right, fn ($item) => $item === $value));
             $overallValue += ($value * $countInRightArray);
         }
         $this->info('Step 2 answer: '.$overallValue);
