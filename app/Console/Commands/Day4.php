@@ -73,12 +73,11 @@ class Day4 extends Command
             foreach ($row as $subKey => $cell) {
                 if ($cell === 'A') {
                     if (
-                        !isset($this->grid[$key - 1][$subKey - 1], $this->grid[$key - 1][$subKey + 1],
+                        ! isset($this->grid[$key - 1][$subKey - 1], $this->grid[$key - 1][$subKey + 1],
                             $this->grid[$key + 1][$subKey - 1], $this->grid[$key + 1][$subKey + 1])
                     ) {
                         continue; // Skip if any necessary cell is missing
                     }
-
 
                     // Get top left
                     $topLeft = $this->grid[$key - 1][$subKey - 1];
@@ -89,11 +88,11 @@ class Day4 extends Command
                     // Get bottom right
                     $bottomRight = $this->grid[$key + 1][$subKey + 1];
 
-                    $word = $topLeft . $topRight . $bottomLeft . $bottomRight;
+                    $word = $topLeft.$topRight.$bottomLeft.$bottomRight;
 
-                    if(in_array($word, [
-                        'MMSS', 'SSMM', 'MSMS', 'SMSM'
-                    ])){
+                    if (in_array($word, [
+                        'MMSS', 'SSMM', 'MSMS', 'SMSM',
+                    ])) {
                         $count++;
                     }
                 }
