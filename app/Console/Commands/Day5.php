@@ -16,6 +16,10 @@ class Day5 extends Command
 
     public array $fileContent = [];
 
+    public array $invalidLines = [];
+
+    public array $ruleLines = [];
+
     public function handle(): void
     {
         $this->loadInput();
@@ -24,7 +28,7 @@ class Day5 extends Command
         $this->info('The answer for step 2: '.$this->step2());
     }
 
-    public function loadInput()
+    public function loadInput(): void
     {
         $this->fileContent['rules'] = Storage::get(
             self::USES_SAMPLE ? 'input/day-5-sample-rules.txt' : 'input/day-5-rules.txt'
@@ -44,19 +48,24 @@ class Day5 extends Command
         foreach (array_filter(explode(PHP_EOL, $this->fileContent['rules'])) as $rule) {
             $first = Str::before($rule, '|');
             $second = Str::after($rule, '|');
-            $ruleLines[] = [
+            $this->ruleLines[] = [
                 'first' => $first, 'second' => $second,
             ];
         }
 
+        $invalidLines = [];
         $orders = array_filter(explode(PHP_EOL, $this->fileContent['orders']));
         foreach ($orders as $key => $order) {
-            foreach ($ruleLines as $rule) {
+            foreach ($this->ruleLines as $rule) {
                 if (! $this->orderMatchesRule($order, $rule)) {
-                    unset($orders[$key]);
+                    if (isset($orders[$key])) {
+                        $invalidLines[] = $orders[$key];
+                        unset($orders[$key]);
+                    }
                 }
             }
         }
+        $this->invalidLines = $invalidLines;
 
         // Get the middle item of each remaining array
         $total = 0;
@@ -64,7 +73,7 @@ class Day5 extends Command
             $orderArray = explode(',', $order);
             $middle = floor((count($orderArray)) / 2);
             $middleItem = array_slice($orderArray, $middle, 1)[0];
-            $total = $total +  $middleItem;
+            $total = $total + (int) $middleItem;
         }
 
         return $total;
@@ -72,14 +81,33 @@ class Day5 extends Command
 
     private function step2(): int
     {
-        return 0;
+        $orders = [];
+        foreach ($this->invalidLines as $invalidLine) {
+            $orders[] = explode(',', $invalidLine); // Split each invalid line into numbers
+        }
+
+        $total = 0;
+
+        foreach ($orders as $order) {
+            // Fix the order of this update
+            $fixedOrder = $this->reorderPages($order, $this->ruleLines);
+
+            // Find the middle number in the fixed order
+            $middleIndex = floor(count($fixedOrder) / 2);
+            $middleNumber = $fixedOrder[$middleIndex];
+
+            // Add the middle number to the total
+            $total += (int)$middleNumber;
+        }
+
+        return $total;
     }
 
-    private function orderMatchesRule(string $order, array $rule)
+    private function orderMatchesRule(string $order, array $rule): bool
     {
         $order = explode(',', $order);
 
-        if (!in_array($rule['first'], $order)) {
+        if (! in_array($rule['first'], $order)) {
             return true; // Rule does not apply since 'first' is missing
         }
 
@@ -91,6 +119,37 @@ class Day5 extends Command
         }
 
         return $firstIndex < $secondIndex; // 'First' must come before 'Second'
+    }
+
+    private function reorderPages(array $order, array $rules): array
+    {
+        // Keep checking the rules until the order is correct
+        $isChanged = true;
+        while ($isChanged) {
+            $isChanged = false;
+
+            foreach ($rules as $rule) {
+                $first = $rule['first'];
+                $second = $rule['second'];
+
+                // Only apply the rule if both numbers are in the current update
+                if (in_array($first, $order) && in_array($second, $order)) {
+                    $firstIndex = array_search($first, $order);
+                    $secondIndex = array_search($second, $order);
+
+                    // If the rule is broken (first comes after second), fix it
+                    if ($firstIndex > $secondIndex) {
+                        // Swap the two numbers
+                        $temp = $order[$firstIndex];
+                        $order[$firstIndex] = $order[$secondIndex];
+                        $order[$secondIndex] = $temp;
+                        $isChanged = true; // Keep checking after making a change
+                    }
+                }
+            }
+        }
+
+        return $order; // Return the fixed order
     }
 
 }
